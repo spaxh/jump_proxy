@@ -62,3 +62,17 @@ socks_port=$2
 
 random=`jot -r 1 0 8`
 sleep 0.$random
+
+if ! check_port 10010
+then
+	go-dispatch-proxy -lhost 0.0.0.0 -lport 10010 -tunnel 127.0.0.1:10000 127.0.0.1:10001 127.0.0.1:10002 127.0.0.1:10003
+fi
+
+while [ `date +%s` -lt $end_time ]
+do
+	if ! check_port $socks_port
+	then
+		connect_socks
+	fi
+	timeout 10 ktrigger ~/.ssh/sessions/ true
+done
